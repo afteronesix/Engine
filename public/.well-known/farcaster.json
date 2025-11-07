@@ -1,0 +1,28 @@
+{ 
+  "accountAssociation": {
+    "header": "eyJmaWQiOjc0ODUxNCwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDZiMTUxMTI1RjZiNGU4NjgyNzQyOTMzMzc2ODYxMTMwQjE3RjI4NjMifQ",
+    "payload": "eyJkb21haW4iOiJzb2xhbmEtd2hlZWwudmVyY2VsLmFwcCJ9",
+    "signature": "MHhhNDdhYmY4YmY5NzE5YzE0OWY5YTAzMWY2YjFlN2JjM2Y3ZDRjYmIwMTFmZTczY2QzZmMxZGJhMzUzYWZmYzM2NTRlN2NhNTU5ZjAyMzM0NTlmNDZhZTlkMTlmM2M1YjI2OGRiZmE3MTQ4ZjY5ODZkMTFkNTQzOWI0MjJmYTIxZDFj"
+  },
+  "frame": {
+    "version": "1",
+    "name": "SOL Wheel",
+    "iconUrl": "https://solana-wheel.vercel.app/icon.png",
+    "homeUrl": "https://solana-wheel.vercel.app",
+    "imageUrl": "https://solana-wheel.vercel.app/sol.png",
+    "buttonTitle": "Play",
+    "splashImageUrl": "https://solana-wheel.vercel.app/icon.png",
+    "splashBackgroundColor": "#eeccff",
+    "webhookUrl": "https://solana-wheel.vercel.app/api/webhook",
+    "subtitle": "SOL Wheel Ready",
+    "description": "SOL Wheel Ready",
+    "screenshotUrls": [],
+     "primaryCategory": "games",
+    "tags": ["Solana","Spin", "Win"],
+    "heroImageUrl": "https://solana-wheel.vercel.app/sol.png",
+    "tagline": "SOL Wheel Ready",
+    "ogTitle": "SOL Wheel",
+    "ogDescription": "SOL Wheel Ready",
+    "ogImageUrl": "https://solana-wheel.vercel.app/sol.png"
+  }
+}
