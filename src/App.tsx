@@ -1,32 +1,30 @@
-import { useWallet } from '@solana/wallet-adapter-react';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { sdk } from '@farcaster/frame-sdk';
 import Menu from './components/Menu';
 import Maintenance from './components/maintenance';
 
-function App() {
-  const { publicKey } = useWallet();
-  const [address, setAddress] = useState<string | null>(null);
-  const isMaintenanceMode = false;
+import { useAppKit } from '@reown/appkit/react'; 
 
+function App() {
+  const { address } = useAppKit();
+  const isMaintenanceMode = false;
 
   useEffect(() => {
     sdk.actions.ready();
   }, []);
-
-  
-  useEffect(() => {
-    if (publicKey) {
-      setAddress(publicKey.toBase58());
-    }
-  }, [publicKey]);
 
   if (isMaintenanceMode) {
     return <Maintenance />;
   }
 
   if (!address) {
-    return <div className="p-4 text-center">Connecting wallet...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-indigo-900 text-white flex-col gap-4">
+        <h1 className="text-3xl font-bold">Welcome to SOL Wheel!</h1>
+        <p>Connect your wallet to play.</p>
+        <appkit-button /> 
+      </div>
+    );
   }
 
   return (
