@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/solana-labs/solana/master/doc/src/img/solana-logo.svg" alt="Solana Logo" width="150" />
+  <img src="https://github.com/afteronesix/Engine/blob/main/public/icon.png" alt="Solana Logo" width="150" />
   <h1>Engine - Solana Spin Wheel Game</h1>
   <p>
     A decentralized Farcaster mini-app “Spin & Win” built on <b>Solana</b>, <b>React</b>, and <b>Cloudflare</b>.
