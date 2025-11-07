@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Wheel } from 'react-custom-roulette';
-import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
-import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
+import { PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
+import { useAppKitProvider } from '@reown/appkit/react';
+import { useAppKitConnection, type Provider } from '@reown/appkit-adapter-solana/react';
 
 const data = [
   { option: '0.0001 SOL', style: { backgroundColor: '#8B5CF6', textColor: '#FFFFFF' }, weight: 45 },
@@ -59,7 +60,8 @@ export default function Spin({ onResult, address }: SpinProps) {
   const [donateError, setDonateError] = useState<string | null>(null);
   const [donateSuccess, setDonateSuccess] = useState<string | null>(null);
 
-  const { publicKey, sendTransaction } = useAppKitConnection();
+  const { connection } = useAppKitConnection();
+  const { walletProvider } = useAppKitProvider<Provider>('solana');
 
   const prizeMap: Record<number, { reward: string; amount: number; chain: string }> = {
     0: { reward: '0.0001 SOL', amount: 0.0001, chain: 'SOL' },
@@ -175,24 +177,26 @@ export default function Spin({ onResult, address }: SpinProps) {
       return;
     }
 
-    if (!publicKey || !sendTransaction) {
+    if (!walletProvider || !walletProvider.publicKey || !connection) {
       setDonateError('Wallet not connected. Please connect your wallet to donate.');
       return;
     }
 
     try {
-      const connection = new Connection(import.meta.env.VITE_SOLANA_ENDPOINT || 'https://api.mainnet-beta.solana.com');
       const toPubkey = new PublicKey('3KLHVSieHoAiY1XC3yZazxbatoiDHZjGYnWMEcueVAoX'); 
 
       const transaction = new Transaction().add(
         SystemProgram.transfer({
-          fromPubkey: publicKey,
+          fromPubkey: walletProvider.publicKey,
           toPubkey,
           lamports: amount * 1e9,
         })
       );
 
-      const signature = await sendTransaction({transaction, connection});
+      transaction.feePayer = walletProvider.publicKey;
+      transaction.recentBlockhash = (await connection.getLatestBlockhash('confirmed')).blockhash;
+
+      const signature = await walletProvider.signAndSendTransaction(transaction);
       await connection.confirmTransaction(signature, 'confirmed');
 
       setDonateSuccess(signature);
@@ -323,7 +327,7 @@ export default function Spin({ onResult, address }: SpinProps) {
             <button
               onClick={handleDonate}
               className="w-full bg-gradient-to-r from-purple-600 to-indigo-700 text-white font-bold py-3 rounded-lg hover:from-purple-700 hover:to-indigo-800 transition duration-300 ease-in-out transform hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed shadow-md"
-              disabled={!publicKey || transactionStatus.loading || !donateAmount}
+              disabled={!walletProvider?.publicKey || transactionStatus.loading || !donateAmount}
             >
               {transactionStatus.loading ? 'Sending...' : 'Donate Now'}
             </button>
