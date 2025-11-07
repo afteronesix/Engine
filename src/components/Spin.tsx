@@ -1,24 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Wheel } from 'react-custom-roulette';
-import { useWallet } from '@solana/wallet-adapter-react';
 import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
-
+import { useAppKit } from '@reown/appkit/react';
 
 const data = [
-  { option: '0.0001 SOL', style: { backgroundColor: '#8B5CF6', textColor: '#FFFFFF' }, weight: 45 }, // Purple
-  { option: '0.001 SOL', style: { backgroundColor: '#3B82F6', textColor: '#FFFFFF' }, weight: 5 }, // Blue
-  { option: '0.005 SOL', style: { backgroundColor: '#10B981', textColor: '#FFFFFF' }, weight: 0 }, // Green
-  { option: '0.01 SOL', style: { backgroundColor: '#F59E0B', textColor: '#FFFFFF' }, weight: 0 }, // Amber
-  { option: '0.03 SOL', style: { backgroundColor: '#EF4444', textColor: '#FFFFFF' }, weight: 0 }, // Red
-  { option: '0.05 SOL', style: { backgroundColor: '#EC4899', textColor: '#FFFFFF' }, weight: 0 }, // Pink
-  { option: 'Try Again', style: { backgroundColor: '#6B7280', textColor: '#FFFFFF' }, weight: 50 }, // Gray
+  { option: '0.0001 SOL', style: { backgroundColor: '#8B5CF6', textColor: '#FFFFFF' }, weight: 45 },
+  { option: '0.001 SOL', style: { backgroundColor: '#3B82F6', textColor: '#FFFFFF' }, weight: 5 },
+  { option: '0.005 SOL', style: { backgroundColor: '#10B981', textColor: '#FFFFFF' }, weight: 0 },
+  { option: '0.01 SOL', style: { backgroundColor: '#F59E0B', textColor: '#FFFFFF' }, weight: 0 },
+  { option: '0.03 SOL', style: { backgroundColor: '#EF4444', textColor: '#FFFFFF' }, weight: 0 },
+  { option: '0.05 SOL', style: { backgroundColor: '#EC4899', textColor: '#FFFFFF' }, weight: 0 },
+  { option: 'Try Again', style: { backgroundColor: '#6B7280', textColor: '#FFFFFF' }, weight: 50 },
 ];
 
-/**
- * Calculates a weighted random index from the provided data.
- * @param items The array of items with a 'weight' property.
- * @returns The index of the randomly selected item.
- */
 function getWeightedRandomIndex(items: typeof data): number {
   const totalWeight = items.reduce((sum, item) => sum + item.weight, 0);
   let random = Math.random() * totalWeight;
@@ -32,35 +26,22 @@ function getWeightedRandomIndex(items: typeof data): number {
 const MAX_SPINS_PER_DAY = 3;
 const SPIN_DATA_KEY = 'spin_data';
 
-/**
- * Interface for storing spin data in local storage.
- */
 interface SpinData {
   date: string;
   count: number;
 }
 
-/**
- * Interface for the backend response after processing a reward.
- */
 interface BackendResponse {
   success: boolean;
   txHash?: string;
   error?: string;
 }
 
-/**
- * Props for the Spin component.
- */
 interface SpinProps {
   onResult: (result: string) => void;
-  address: string | null; // Changed to allow null for disconnected wallet
+  address: string | null;
 }
 
-/**
- * Main Spin Wheel component.
- * @param {SpinProps} props - The component props.
- */
 export default function Spin({ onResult, address }: SpinProps) {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeIndex, setPrizeIndex] = useState(0);
@@ -78,9 +59,8 @@ export default function Spin({ onResult, address }: SpinProps) {
   const [donateError, setDonateError] = useState<string | null>(null);
   const [donateSuccess, setDonateSuccess] = useState<string | null>(null);
 
-  const { publicKey, sendTransaction } = useWallet();
+  const { publicKey, sendTransaction } = useAppKit();
 
-  // Mapping of prize index to reward details
   const prizeMap: Record<number, { reward: string; amount: number; chain: string }> = {
     0: { reward: '0.0001 SOL', amount: 0.0001, chain: 'SOL' },
     1: { reward: '0.001 SOL', amount: 0.001, chain: 'SOL' },
@@ -91,9 +71,6 @@ export default function Spin({ onResult, address }: SpinProps) {
     6: { reward: 'Try Again', amount: 0, chain: 'SOL' },
   };
 
-  /**
-   * Effect hook to check remaining spins when the address changes.
-   */
   useEffect(() => {
     if (address) {
       checkSpins(address);
@@ -103,11 +80,6 @@ export default function Spin({ onResult, address }: SpinProps) {
     }
   }, [address]);
 
-  /**
-   * Checks the number of spins remaining for the current day for a given address.
-   * Updates local state accordingly.
-   * @param addr The Solana public key address.
-   */
   const checkSpins = (addr: string) => {
     const today = new Date().toDateString();
     const spinDataStr = localStorage.getItem(`${SPIN_DATA_KEY}_${addr}`);
@@ -126,20 +98,11 @@ export default function Spin({ onResult, address }: SpinProps) {
     setIsSpinningDisabled(false);
   };
 
-  /**
-   * Updates the spin data in local storage.
-   * @param addr The Solana public key address.
-   * @param count The current spin count.
-   * @param date The current date string.
-   */
   const updateSpinData = (addr: string, count: number, date: string) => {
     const spinData: SpinData = { date, count };
     localStorage.setItem(`${SPIN_DATA_KEY}_${addr}`, JSON.stringify(spinData));
   };
 
-  /**
-   * Handles the click event for the spin button.
-   */
   const handleSpinClick = () => {
     if (!address || isSpinningDisabled || transactionStatus.loading) return;
 
@@ -167,10 +130,6 @@ export default function Spin({ onResult, address }: SpinProps) {
     setTransactionStatus({ loading: false, error: null, success: false, txHash: undefined });
   };
 
-  /**
-   * Handles the event when the spin wheel stops.
-   * Sends the reward to the backend if applicable.
-   */
   const handleSpinEnd = async () => {
     setMustSpin(false);
     const prize = prizeMap[prizeIndex];
@@ -182,7 +141,7 @@ export default function Spin({ onResult, address }: SpinProps) {
     setTransactionStatus({ loading: true, error: null, success: false, txHash: undefined });
 
     try {
-      const res = await fetch(import.meta.env.VITE_BACKEND_URL, {
+      const res = await fetch('/api/spin', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -204,9 +163,6 @@ export default function Spin({ onResult, address }: SpinProps) {
     }
   };
 
-  /**
-   * Handles the donation process to a specified Solana address.
-   */
   const handleDonate = async () => {
     setDonateError(null);
     setDonateSuccess(null);
@@ -224,7 +180,7 @@ export default function Spin({ onResult, address }: SpinProps) {
 
     try {
       const connection = new Connection(import.meta.env.VITE_SOLANA_ENDPOINT || 'https://api.mainnet-beta.solana.com');
-      const toPubkey = new PublicKey('3KLHVSieHoAiY1XC3yZazxbatoiDHZjGYnWMEcueVAoX'); // Your donation public key
+      const toPubkey = new PublicKey('3KLHVSieHoAiY1XC3yZazxbatoiDHZjGYnWMEcueVAoX'); 
 
       const transaction = new Transaction().add(
         SystemProgram.transfer({
@@ -255,14 +211,12 @@ export default function Spin({ onResult, address }: SpinProps) {
           Test your luck and win Solana! You get {MAX_SPINS_PER_DAY} free spins daily.
         </p>
 
-        
         {!address && (
           <div className="mb-8 p-4 bg-yellow-800/30 border border-yellow-700 rounded-lg text-yellow-200 text-center text-sm">
             <p>Please **connect your Solana wallet** to start playing!</p>
           </div>
         )}
 
-       
         <div className="relative mb-8 flex justify-center items-center">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full w-0 h-0 border-l-[15px] border-r-[15px] border-b-[25px] border-l-transparent border-r-transparent border-b-white z-10 shadow-lg"></div>
 
@@ -271,21 +225,19 @@ export default function Spin({ onResult, address }: SpinProps) {
             prizeNumber={prizeIndex}
             data={data}
             onStopSpinning={handleSpinEnd}
-            outerBorderColor="#4F46E5" // Indigo-600 for outer border
+            outerBorderColor="#4F46E5"
             outerBorderWidth={10}
-            innerBorderColor="#6D28D9" // Violet-700 for inner border
+            innerBorderColor="#6D28D9"
             innerBorderWidth={20}
-            radiusLineColor="#312E81" // Indigo-900 for radius lines
+            radiusLineColor="#312E81"
             radiusLineWidth={3}
-            textColors={['#FFFFFF']} // All text white for maximum contrast
+            textColors={['#FFFFFF']}
             fontSize={18}
             perpendicularText={true}
-            backgroundColors={['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#6B7280']} // From data
-            // Removed pointerProps from Wheel component as we're using a static HTML element for clarity
+            backgroundColors={['#8B5CF6', '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#6B7280']}
           />
         </div>
 
-        
         <button
           onClick={handleSpinClick}
           disabled={isSpinningDisabled || transactionStatus.loading || !address}
@@ -309,7 +261,6 @@ export default function Spin({ onResult, address }: SpinProps) {
           {address ? `Spins remaining today: ${remainingSpins}/${MAX_SPINS_PER_DAY}` : 'Connect your wallet to see spin count.'}
         </p>
 
-        
         {transactionStatus.error && (
           <div className="bg-red-900/30 border border-red-700 text-red-300 px-4 py-3 rounded-lg relative mt-4 text-center text-sm">
             <p><strong>Error:</strong> {transactionStatus.error}</p>
@@ -324,7 +275,6 @@ export default function Spin({ onResult, address }: SpinProps) {
           </div>
         )}
 
-        
         <div className="mt-8 text-center">
           <button
             onClick={() => setShowDonateModal(true)}
@@ -338,7 +288,6 @@ export default function Spin({ onResult, address }: SpinProps) {
         </div>
       </div>
 
-     
       {showDonateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4 animate-fadeIn">
           <div className="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-sm w-full relative transform transition-all duration-300 scale-100 animate-zoomIn border border-purple-500/50">
