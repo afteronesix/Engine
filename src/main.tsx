@@ -13,7 +13,7 @@ import { Buffer } from 'buffer';
 
 const solanaWeb3JsAdapter = new SolanaAdapter();
 
-const projectId = "YOUR_PROJECT_ID"; 
+const projectId = "b5177ed9c756b72ea8a9cb11f7aab606"; // get on https://reown.com
 
 const metadata = {
   name: "SOL Wheel Game",
