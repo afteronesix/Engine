@@ -2,11 +2,10 @@ import { useEffect } from 'react';
 import { sdk } from '@farcaster/frame-sdk';
 import Menu from './components/Menu';
 import Maintenance from './components/maintenance';
-
-import { useAppKit } from '@reown/appkit/react'; 
+import { useAppKitAccount } from '@reown/appkit/react'; 
 
 function App() {
-  const { address } = useAppKit();
+  const { address } = useAppKitAccount();
   const isMaintenanceMode = false;
 
   useEffect(() => {

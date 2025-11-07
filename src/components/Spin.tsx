@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Wheel } from 'react-custom-roulette';
 import { Connection, PublicKey, Transaction, SystemProgram } from '@solana/web3.js';
-import { useAppKit } from '@reown/appkit/react';
+import { useAppKitConnection } from '@reown/appkit-adapter-solana/react';
 
 const data = [
   { option: '0.0001 SOL', style: { backgroundColor: '#8B5CF6', textColor: '#FFFFFF' }, weight: 45 },
@@ -42,6 +42,7 @@ interface SpinProps {
   address: string | null;
 }
 
+
 export default function Spin({ onResult, address }: SpinProps) {
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeIndex, setPrizeIndex] = useState(0);
@@ -53,13 +54,12 @@ export default function Spin({ onResult, address }: SpinProps) {
     success: false,
     txHash: undefined,
   });
-
   const [showDonateModal, setShowDonateModal] = useState(false);
   const [donateAmount, setDonateAmount] = useState('');
   const [donateError, setDonateError] = useState<string | null>(null);
   const [donateSuccess, setDonateSuccess] = useState<string | null>(null);
 
-  const { publicKey, sendTransaction } = useAppKit();
+  const { publicKey, sendTransaction } = useAppKitConnection();
 
   const prizeMap: Record<number, { reward: string; amount: number; chain: string }> = {
     0: { reward: '0.0001 SOL', amount: 0.0001, chain: 'SOL' },
@@ -130,6 +130,7 @@ export default function Spin({ onResult, address }: SpinProps) {
     setTransactionStatus({ loading: false, error: null, success: false, txHash: undefined });
   };
 
+
   const handleSpinEnd = async () => {
     setMustSpin(false);
     const prize = prizeMap[prizeIndex];
@@ -163,6 +164,7 @@ export default function Spin({ onResult, address }: SpinProps) {
     }
   };
 
+
   const handleDonate = async () => {
     setDonateError(null);
     setDonateSuccess(null);
@@ -190,7 +192,7 @@ export default function Spin({ onResult, address }: SpinProps) {
         })
       );
 
-      const signature = await sendTransaction(transaction, connection);
+      const signature = await sendTransaction({transaction, connection});
       await connection.confirmTransaction(signature, 'confirmed');
 
       setDonateSuccess(signature);
