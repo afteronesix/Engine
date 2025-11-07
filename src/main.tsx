@@ -1,9 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
-import App from './App.tsx';
+import App from './App'; 
 
-import { createAppKit, AppKitProvider } from "@reown/appkit/react";
+import { createAppKit } from "@reown/appkit/react";
 import { SolanaAdapter } from "@reown/appkit-adapter-solana/react";
 import { solana, solanaTestnet, solanaDevnet } from "@reown/appkit/networks";
 
@@ -22,6 +22,7 @@ const metadata = {
   icons: ["https://solana-wheel.vercel.app/logo.png"], 
 };
 
+
 createAppKit({
   adapters: [solanaWeb3JsAdapter],
   networks: [solana, solanaTestnet, solanaDevnet],
@@ -32,10 +33,9 @@ createAppKit({
   },
 });
 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AppKitProvider>
-      <App />
-    </AppKitProvider>
+    <App />
   </StrictMode>,
 );
