@@ -11,8 +11,8 @@ export default function Menu({ address }: { address: string }) {
   return (
     <div className="min-h-screen p-4 bg-green-700 text-center relative">
       {/* Solana Address */}
-      <div className="absolute top-4 left-4 bg-white/70 rounded-full px-4 py-1 text-sm text-gray-700 shadow">
-        Connected: {address.slice(0, 4)}...{address.slice(-4)}
+      <div className="absolute top-4 left-4 rounded-full px-4 py-1 text-sm text-gray-700 shadow">
+        <appkit-button/>
       </div>
 
       

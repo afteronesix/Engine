@@ -295,7 +295,7 @@ export default function Spin({ onResult, address }: SpinProps) {
       </div>
 
       {showDonateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4 animate-fadeIn">
+        <div className="fixed inset-0 bg-transparent bg-opacity-70 flex justify-center items-center z-50 p-4 animate-fadeIn">
           <div className="bg-gray-800 rounded-xl shadow-2xl p-8 max-w-sm w-full relative transform transition-all duration-300 scale-100 animate-zoomIn border border-purple-500/50">
             <button
               onClick={() => setShowDonateModal(false)}
