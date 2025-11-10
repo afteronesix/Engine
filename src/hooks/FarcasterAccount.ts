@@ -1,3 +1,4 @@
+// hooks/FarcasterAccount.ts
 import { DEFAULT_CACHE_TIME } from "./config";
 import { useQuery } from "@tanstack/react-query";
 import { useFarcasterContext } from "./FarcasterContext";
